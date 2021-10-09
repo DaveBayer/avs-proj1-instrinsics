@@ -72,8 +72,8 @@ static inline __m512 _mm512_concat_ps256(__m256 a, __m256 b)
 {
 	__m512 x;
 
-	x = _mm512_castps256_ps512(b);
-	x = _mm512_mask_broadcast_f32x8(x, 0xff00, a);
+	x = _mm512_castps256_ps512(a);
+	x = _mm512_mask_broadcast_f32x8(x, 0xff00, b);
 
 	return x;
 }
@@ -82,8 +82,8 @@ static inline __m512i _mm512_concat_i256(__m256i a, __m256i b)
 {
 	__m512i x;
 
-	x = _mm512_castsi256_si512(b);
-	x = _mm512_mask_broadcast_i32x8(x, 0xff00, a);
+	x = _mm512_castsi256_si512(a);
+	x = _mm512_mask_broadcast_i32x8(x, 0xff00, b);
 
 	return x;
 }
