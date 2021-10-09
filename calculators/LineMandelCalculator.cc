@@ -70,7 +70,7 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 	return result;
 }
 
-#define _MM512_FILL_INCREMENTS_PD(from) _mm512_set_pd(from, from + 1, from + 2, from + 3, from + 4, from + 5, from + 6, from + 7)
+#define _MM512_FILL_INCREMENTS_PD(from) _mm512_set_pd(from, from + 1.0, from + 2.0, from + 3.0, from + 4.0, from + 5.0, from + 6.0, from + 7.0)
 
 static inline __m512 _mm512_concat_ps256(__m256 a, __m256 b)
 {
@@ -102,7 +102,7 @@ int * LineMandelCalculator::calculateMandelbrot () {
 
 		for (int j = 0; j < width; j += AVX512_SIZE_PS) {
 			const __m512d j1_pd = _MM512_FILL_INCREMENTS_PD(j);
-			const __m512d j2_pd = _MM512_FILL_INCREMENTS_PD(AVX512_SIZE_PD);
+			const __m512d j2_pd = _MM512_FILL_INCREMENTS_PD(j + AVX512_SIZE_PD);
 
 			__m512d x1_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j1_pd, dx_pd));
 			__m512d x2_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j2_pd, dx_pd));
