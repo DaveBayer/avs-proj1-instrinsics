@@ -83,7 +83,6 @@ static inline __m512 _mm512_concat_ps256(__m256 a, __m256 b)
 int * LineMandelCalculator::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
 
-	int *pdata = data;
 	const int AVX512_SIZE_PS = 16;
 	const int AVX512_SIZE_PD = 8;
 
@@ -95,10 +94,10 @@ int * LineMandelCalculator::calculateMandelbrot () {
 	x_start_pd = _mm512_set1_pd(x_start);
 	y_start_pd = _mm512_set1_pd(y_start);
 
-	for (int i = 0; i < height; i++) {
+	for (int i = 0, *row_ptr = data; i < height; i++, row_ptr += height) {
 		const __m512d i_pd = _mm512_set1_pd(i);
 
-		for (int j = 0; j < width; j += AVX512_SIZE_PS) {
+		for (int j = 0, *col_ptr = row_ptr; j < width; j += AVX512_SIZE_PS, col_ptr += AVX512_SIZE_PS) {
 			const __m512d j1_pd = _MM512_FILL_INCREMENTS_PD(j);
 			const __m512d j2_pd = _MM512_FILL_INCREMENTS_PD(j + AVX512_SIZE_PD);
 /*
@@ -116,20 +115,12 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			__m512i values = _mm512_set1_epi32(i);
 
 			int diff = width - j;
-			__mmask16 store_mask = 0xffff;
+			__mmask16 store_mask = 0xffffU;
 			
 			if (diff < AVX512_SIZE_PS) {
 				store_mask <<= AVX512_SIZE_PS - diff;
 
-				_mm512_mask_storeu_epi32(pdata, store_mask, values);
-				
-				pdata += diff;
-				
-			} else {
-				_mm512_mask_storeu_epi32(pdata, store_mask, values);
-
-				pdata += AVX512_SIZE_PS;
-			}
+			_mm512_mask_storeu_epi32(col_ptr, store_mask, values);
 		}
 	}
 
