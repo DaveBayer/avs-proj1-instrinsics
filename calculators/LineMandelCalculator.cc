@@ -118,12 +118,18 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			int diff = width - j;
 			__mmask16 store_mask = 0xffff;
 			
-			if (diff < AVX512_SIZE_PS)
+			if (diff < AVX512_SIZE_PS) {
 				store_mask <<= AVX512_SIZE_PS - diff;
 
-			_mm512_mask_storeu_epi32(pdata, store_mask, values);
-			
-			pdata += AVX512_SIZE_PS;
+				_mm512_mask_storeu_epi32(pdata, store_mask, values);
+				
+				pdata += diff;
+				
+			} else {
+				_mm512_mask_storeu_epi32(pdata, store_mask, values);
+
+				pdata += AVX512_SIZE_PS;
+			}
 		}
 	}
 
