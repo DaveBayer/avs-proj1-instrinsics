@@ -42,7 +42,7 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 	__m512 zReal = real;
 	__m512 zImag = imag;
 
-	float tmp[16] = { 0.f };
+	int tmp[16] = { 0 };
 
 	for (int i = 0; i < limit; i++) {
 		const __m512 r2 = _mm512_mul_ps(zReal, zReal);
