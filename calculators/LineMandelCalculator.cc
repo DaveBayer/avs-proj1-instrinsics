@@ -94,7 +94,7 @@ int * LineMandelCalculator::calculateMandelbrot () {
 	x_start_pd = _mm512_set1_pd(x_start);
 	y_start_pd = _mm512_set1_pd(y_start);
 
-	for (int i = 0, *row_ptr = data; i < height; i++, row_ptr += height) {
+	for (int i = 0, *row_ptr = data; i < height; i++, row_ptr += width) {
 		const __m512d i_pd = _mm512_set1_pd(i);
 
 		for (int j = 0, *col_ptr = row_ptr; j < width; j += AVX512_SIZE_PS, col_ptr += AVX512_SIZE_PS) {
