@@ -52,12 +52,12 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 		__mmask16 test_mask = _mm512_cmp_ps_mask(_mm512_add_ps(r2, i2), four, _CMP_GT_OQ);
 
 		result = _mm512_mask_mov_epi32(result, test_mask & result_mask, _mm512_set1_epi32(i));
-		result = _mm512_mask_mov_epi32(result, test_mask & result_mask, _mm512_set1_epi32(i));
+		__mmask16 res_mask_old = result_mask;
 		result_mask &= ~test_mask;
 
 		_mm512_mask_storeu_epi32(tmp, result_mask, result);
 
-		std::cout << std::dec << i << ": tm: " << std::hex << test_mask << " rm: " << result_mask << "\t";
+		std::cout << std::dec << i << std::hex << ": rm.old: " << res_mask_old << " tm: "  << test_mask << " rm: " << result_mask << "\t";
 		for (int i = 0; i < 16; i++) {
 			std::cout << tmp[i] << " ";
 		}
