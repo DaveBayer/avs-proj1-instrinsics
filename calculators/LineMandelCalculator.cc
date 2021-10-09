@@ -68,8 +68,6 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 	return result;
 }
 
-#define _MM512_FILL_INCREMENTS_PD(from) _mm512_set_pd(from, from + 1.0, from + 2.0, from + 3.0, from + 4.0, from + 5.0, from + 6.0, from + 7.0)
-
 static inline __m512 _mm512_concat_ps256(__m256 a, __m256 b)
 {
 	__m512 x;
@@ -80,13 +78,23 @@ static inline __m512 _mm512_concat_ps256(__m256 a, __m256 b)
 	return x;
 }
 
+static inline __m512i _mm512_concat_si256(__m256i a, __m256i b)
+{
+	__m512i x;
+
+	x = _mm512_castsi256_si512(b);
+	x = _mm512_mask_broadcast_epi32x8(x, 0xff00, a);
+
+	return x;
+}
+
 int * LineMandelCalculator::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
 
 	const int AVX512_SIZE_PS = 16;
 	const int AVX512_SIZE_PD = 8;
 
-	__m512d dx_pd, dy_pd, x_start_pd, y_start_pd;
+	__m512d dx_pd, dy_pd, x_start_pd, y_start_pd, inc_pd;
 
 	dx_pd = _mm512_set1_pd(dx);
 	dy_pd = _mm512_set1_pd(dy);
@@ -94,12 +102,14 @@ int * LineMandelCalculator::calculateMandelbrot () {
 	x_start_pd = _mm512_set1_pd(x_start);
 	y_start_pd = _mm512_set1_pd(y_start);
 
+	inc_pd = _mm512_set_pd(7., 6., 5., 4., 3., 2., 1., 0.);
+
 	for (int i = 0, *row_ptr = data; i < height; i++, row_ptr += width) {
-		const __m512d i_pd = _mm512_set1_pd(i);
+		const __m512d i_pd = _mm512_set1_pd(static_cast<double>(i));
 
 		for (int j = 0, *col_ptr = row_ptr; j < width; j += AVX512_SIZE_PS, col_ptr += AVX512_SIZE_PS) {
-			const __m512d j1_pd = _MM512_FILL_INCREMENTS_PD(j);
-			const __m512d j2_pd = _MM512_FILL_INCREMENTS_PD(j + AVX512_SIZE_PD);
+			__m512d j1_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j)), inc_pd);
+			__m512d j2_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j + AVX512_SIZE_PD)), inc_pd);
 /*
 			__m512d x1_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j1_pd, dx_pd));
 			__m512d x2_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j2_pd, dx_pd));
@@ -112,8 +122,7 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			__m512i values = mandelbrot(x, y, limit);
 */
 
-			__m512i values = _mm512_set_epi32(j, j+1, j+2, j+3, j+4, j+5, j+6, j+7, j+8,
-										      j+9, j+10, j+11, j+12, j+13, j+14, j+15);
+			__m512i values = _mm512_concat_ps256(_mm512_cvtpd_epi32(j1_pd), _mm512_cvtpd_epi32(j2_pd));
 
 			int diff = width - j;
 			__mmask16 store_mask = 0xffffU;
