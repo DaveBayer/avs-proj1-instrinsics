@@ -139,7 +139,7 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			_mm512_mask_storeu_epi32(col_ptr, store_mask, values);
 		}
 
-		break;
+		std::cout << std::endl;
 	}
 /*
 //	for (int i = 0; i < height; i++) {
