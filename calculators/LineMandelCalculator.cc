@@ -78,7 +78,7 @@ static inline __m512 _mm512_concat_ps256(__m256 a, __m256 b)
 	return x;
 }
 
-static inline __m512i _mm512_concat_si256(__m256i a, __m256i b)
+static inline __m512i _mm512_concat_i256(__m256i a, __m256i b)
 {
 	__m512i x;
 
@@ -122,7 +122,7 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			__m512i values = mandelbrot(x, y, limit);
 */
 
-			__m512i values = _mm512_concat_ps256(_mm512_cvtpd_epi32(j1_pd), _mm512_cvtpd_epi32(j2_pd));
+			__m512i values = _mm512_concat_i256(_mm512_cvtpd_epi32(j1_pd), _mm512_cvtpd_epi32(j2_pd));
 
 			int diff = width - j;
 			__mmask16 store_mask = 0xffffU;
