@@ -83,7 +83,7 @@ static inline __m512i _mm512_concat_si256(__m256i a, __m256i b)
 	__m512i x;
 
 	x = _mm512_castsi256_si512(b);
-	x = _mm512_mask_broadcast_epi32x8(x, 0xff00, a);
+	x = _mm512_mask_broadcast_i32x8(x, 0xff00, a);
 
 	return x;
 }
