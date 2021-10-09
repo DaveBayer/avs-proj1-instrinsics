@@ -48,7 +48,7 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 		__m512 i2 = _mm512_mul_ps(zImag, zImag);
 
 	//	if (r2 + i2 > 4.0f) then write i to result
-		__mmask16 test_mask = _mm512_cmplt_ps_mask(four, _mm512_mul_ps(r2, i2));
+		__mmask16 test_mask = _mm512_cmp_ps_mask(_mm512_mul_ps(r2, i2), four, _CMP_GT_OQ);
 
 		result = _mm512_mask_mov_epi32(result, test_mask ^ result_mask, _mm512_set1_epi32(i));
 		result_mask |= test_mask;
