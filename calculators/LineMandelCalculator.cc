@@ -119,8 +119,13 @@ int * LineMandelCalculator::calculateMandelbrot () {
 					  << "\tmask: " << ((1 << (j % AVX512_SIZE_PS)) - 1)
 					  << "\tj: " << j << "\t";
 
-			_mm512_mask_storeu_epi32(pdata, (1 << (j % AVX512_SIZE_PS)) - 1, values);
-
+			if (j + AVX512_SIZE_PS < width)
+				_mm512_storeu_epi32(pdata, values);
+			else {
+				int diff = width - j;
+				__mmask16 store_mask = (1U << diff) - 1;
+				_mm512_mask_storeu_epi32(pdata, store_mask, values);
+			}
 			
 			for (int i = 0; i < (j % AVX512_SIZE_PS) + 1; i++)
 			{
