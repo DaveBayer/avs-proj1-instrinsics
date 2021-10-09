@@ -42,8 +42,9 @@ static inline int mandelbrot(T real, T imag, int limit)
 
 	//	return limit;
 */
-	int *p = (int *) ((void *) &imag);
-	return *p;
+//	int *p = (int *) ((void *) &imag);
+//	return *p;
+	return static_cast<int>(imag);
 }
 
 int *RefMandelCalculator::calculateMandelbrot()

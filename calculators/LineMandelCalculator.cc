@@ -69,7 +69,8 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 	return result;
 	*/
 
-	return _mm512_castps_si512(imag);
+//	return _mm512_castps_si512(imag);
+	return _mm512_cvtps_epi32(imag);
 }
 
 static inline __m512 _mm512_concat_ps256(__m256 a, __m256 b)
@@ -98,18 +99,17 @@ int * LineMandelCalculator::calculateMandelbrot () {
 	const int AVX512_SIZE_PS = 16;
 	const int AVX512_SIZE_PD = 8;
 
-	__m512d dx_pd, dy_pd, x_start_pd, y_start_pd, inc_pd;
+	__m512d dx_pd, x_start_pd, inc_pd;
 
 	dx_pd = _mm512_set1_pd(dx);
-	dy_pd = _mm512_set1_pd(dy);
-
 	x_start_pd = _mm512_set1_pd(x_start);
-	y_start_pd = _mm512_set1_pd(y_start);
 
 	inc_pd = _mm512_set_pd(7., 6., 5., 4., 3., 2., 1., 0.);
 
 	for (int i = 0, *row_ptr = data; i < height; i++, row_ptr += width) {
-		const __m512d i_pd = _mm512_set1_pd(static_cast<double>(i));
+
+	//	y = y_start + i * dy
+		__m512 y = _mm512_set1_ps(y_start + i * dy);
 
 		for (int j = 0, *col_ptr = row_ptr; j < width; j += AVX512_SIZE_PS, col_ptr += AVX512_SIZE_PS) {
 			__m512d j1_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j)), inc_pd);
@@ -119,11 +119,6 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			__m512d x1_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j1_pd, dx_pd));
 			__m512d x2_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j2_pd, dx_pd));
 			__m512 x = _mm512_concat_ps256(_mm512_cvtpd_ps(x1_pd), _mm512_cvtpd_ps(x2_pd));
-
-		//	y = y_start + i * dy
-			__m512d y_pd = _mm512_add_pd(y_start_pd, _mm512_mul_pd(i_pd, dx_pd));
-			__m256 y_ps = _mm512_cvtpd_ps(y_pd);			
-			__m512 y = _mm512_broadcast_f32x8(y_ps);
 
 			__m512i values = mandelbrot(x, y, limit);
 
