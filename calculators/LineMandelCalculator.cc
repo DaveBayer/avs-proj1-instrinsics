@@ -33,9 +33,8 @@ LineMandelCalculator::~LineMandelCalculator() {
 
 static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 {
-	/*
 	__m512i result = _mm512_setzero_epi32();
-	__mmask16 result_mask = 0U;
+	__mmask16 result_mask = 0x0000U;
 	const __mmask16 target_mask = 0xffffU;
 
 	const __m512 two = _mm512_set1_ps(2.f);
@@ -67,10 +66,7 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 	result = _mm512_mask_mov_epi32(result, result_mask ^ target_mask, _mm512_set1_epi32(limit));
 
 	return result;
-	*/
-
-	return _mm512_castps_si512(real);
-//	return _mm512_cvtps_epi32(imag);
+	
 }
 
 static inline __m512 _mm512_concat_ps256(__m256 a, __m256 b)
@@ -123,8 +119,7 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			__m512i values = mandelbrot(x, y, limit);
 
 
-	//		__m512i values = _mm512_concat_i256(_mm512_cvtpd_epi32(j1_pd), _mm512_cvtpd_epi32(j2_pd));
-
+		//	store values in memory pointed by col_ptr using mask
 			int diff = width - j;
 			__mmask16 store_mask = 0xffffU;
 			

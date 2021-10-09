@@ -24,7 +24,7 @@ RefMandelCalculator::~RefMandelCalculator()
 
 template <typename T>
 static inline int mandelbrot(T real, T imag, int limit)
-{/*
+{
 	T zReal = real;
 	T zImag = imag;
 
@@ -40,11 +40,7 @@ static inline int mandelbrot(T real, T imag, int limit)
 		zReal = r2 - i2 + real;
 	}
 
-	//	return limit;
-*/
-	int *p = (int *) ((void *) &real);
-	return *p;
-//	return static_cast<int>(imag);
+	return limit;
 }
 
 int *RefMandelCalculator::calculateMandelbrot()
