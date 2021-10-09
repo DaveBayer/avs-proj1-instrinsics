@@ -108,7 +108,7 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			__m512d x2_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j2_pd, dx_pd));
 			__m512 x = _mm512_concat_ps256(_mm512_cvtpd_ps(x1_pd), _mm512_cvtpd_ps(x2_pd));
 
-			__m512d y_pd = _mm512_add_pd(y_start_pd, _mm512_mul_pd(i, dx_pd));
+			__m512d y_pd = _mm512_add_pd(y_start_pd, _mm512_mul_pd(i_pd, dx_pd));
 			__m256 y_ps = _mm512_cvtpd_ps(y_pd);			
 			__m512 y = _mm512_concat_ps256(y_ps, y_ps);
 
