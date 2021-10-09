@@ -55,7 +55,7 @@ int *RefMandelCalculator::calculateMandelbrot()
 		for (int j = 0; j < width; j++)
 		{
 			float x = x_start + j * dx; // current real value
-			float y = y_start; // + i * dy; // current imaginary value
+			float y = y_start + i * dy; // current imaginary value
 
 			int value = mandelbrot(x, y, limit);
 
