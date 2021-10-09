@@ -116,8 +116,8 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			__m512i values = _mm512_set1_epi32(i);
 
 			std::cout << "Writing to memory: " << std::hex << pdata
-					  << "\tmask: " << ((1U << (width - j)) % AVX512_SIZE_PS - 1)
-					  << "\tj: " << j << "\t";
+					  << "\tmask: " << ((1U << ((width - j) % AVX512_SIZE_PS)) - 1)
+					  << "\tj: " << std::dec << j << "\t";
 
 			if (j + AVX512_SIZE_PS < width) {
 				_mm512_mask_storeu_epi32(pdata, 0xffff, values);
