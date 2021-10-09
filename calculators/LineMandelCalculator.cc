@@ -50,7 +50,7 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 	//	if (r2 + i2 > 4.0f) then write i to result
 		__mmask16 test_mask = _mm512_cmplt_ps_mask(four, _mm512_mul_ps(r2, i2));
 
-		result = _mm512_mask_mov_epi32(result, test_result ^ result_mask, _mm512_set1_epi32(i));
+		result = _mm512_mask_mov_epi32(result, test_mask ^ result_mask, _mm512_set1_epi32(i));
 		result_mask |= test_mask;
 
 		if (result_mask == target_mask)
@@ -79,13 +79,13 @@ int * LineMandelCalculator::calculateMandelbrot () {
 	const int AVX512_SIZE_PS = 16;
 	const int AVX512_SIZE_PD = 8;
 
-	__m512d dx, dy, x_start, y_start;
+	__m512d dx_pd, dy_pd, x_start_pd, y_start_pd;
 
-	dx = _mm512_set1_pd(this->dx);
-	dy = _mm512_set1_pd(this->dy);
+	dx_pd = _mm512_set1_pd(dx);
+	dy_pd = _mm512_set1_pd(dy);
 
-	x_start = _mm512_set1_pd(this->x_start);
-	y_start = _mm512_set1_pd(this->y_start);
+	x_start_pd = _mm512_set1_pd(x_start);
+	y_start_pd = _mm512_set1_pd(y_start);
 
 	for (int i = 0; i < height; i++) {
 		const __m512d i_pd = _mm512_set1_pd(i);
@@ -94,11 +94,11 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			const __m512d j1_pd = _MM512_FILL_INCREMENTS_PD(j);
 			const __m512d j2_pd = _MM512_FILL_INCREMENTS_PD(AVX512_SIZE_PD);
 
-			__m512d x1_pd = _mm512_add_pd(x_start, _mm512_mul_pd(j1_pd, dx));
-			__m512d x2_pd = _mm512_add_pd(x_start, _mm512_mul_pd(j2_pd, dx));
+			__m512d x1_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j1_pd, dx_pd));
+			__m512d x2_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j2_pd, dx_pd));
 			__m512 x = _mm512_broadcast_f32x8(_mm512_cvtpd_ps(x1_pd), _mm512_cvtpd_ps(x2_pd));
 
-			__m512d y_pd = _mm512_add_pd(y_start, _mm512_mul_pd(i, dx));
+			__m512d y_pd = _mm512_add_pd(y_start_pd, _mm512_mul_pd(i, dx_pd));
 			__m256 y_ps = _mm512_cvtpd_ps(y_pd);			
 			__m512 y = _mm512_broadcast_f32x8(y_ps, y_ps);
 
