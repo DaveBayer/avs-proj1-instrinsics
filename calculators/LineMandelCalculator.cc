@@ -101,7 +101,7 @@ int * LineMandelCalculator::calculateMandelbrot () {
 		for (int j = 0; j < width; j += AVX512_SIZE_PS) {
 			const __m512d j1_pd = _MM512_FILL_INCREMENTS_PD(j);
 			const __m512d j2_pd = _MM512_FILL_INCREMENTS_PD(j + AVX512_SIZE_PD);
-
+/*
 			__m512d x1_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j1_pd, dx_pd));
 			__m512d x2_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j2_pd, dx_pd));
 			__m512 x = _mm512_concat_ps256(_mm512_cvtpd_ps(x1_pd), _mm512_cvtpd_ps(x2_pd));
@@ -111,6 +111,10 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			__m512 y = _mm512_concat_ps256(y_ps, y_ps);
 
 			__m512i values = mandelbrot(x, y, limit);
+*/
+
+			__m512i values = _mm512_set1_epi32(j);
+
 			_mm512_mask_storeu_epi32(pdata, (1 << (j % AVX512_SIZE_PS)) - 1, values);
 
 			pdata += AVX512_SIZE_PS;
