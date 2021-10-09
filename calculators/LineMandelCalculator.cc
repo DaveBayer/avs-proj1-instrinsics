@@ -129,8 +129,8 @@ int * LineMandelCalculator::calculateMandelbrot () {
 
 	for (int i = 0; i < height; i++) {
 		for (int j = 0; j < width; j++)
-			std::cout << std::dec << data[i * height + j] << " ";
-			
+			std::cout << std::dec << data[i * width + j] << " ";
+
 		std::cout << std::endl;
 	}
 
