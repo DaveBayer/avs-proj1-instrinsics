@@ -110,19 +110,21 @@ int * LineMandelCalculator::calculateMandelbrot () {
 		for (int j = 0, *col_ptr = row_ptr; j < width; j += AVX512_SIZE_PS, col_ptr += AVX512_SIZE_PS) {
 			__m512d j1_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j)), inc_pd);
 			__m512d j2_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j + AVX512_SIZE_PD)), inc_pd);
-/*
+
+		//	x = x_start + j * dx
 			__m512d x1_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j1_pd, dx_pd));
 			__m512d x2_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j2_pd, dx_pd));
 			__m512 x = _mm512_concat_ps256(_mm512_cvtpd_ps(x1_pd), _mm512_cvtpd_ps(x2_pd));
 
+		//	y = y_start + i * dy
 			__m512d y_pd = _mm512_add_pd(y_start_pd, _mm512_mul_pd(i_pd, dx_pd));
 			__m256 y_ps = _mm512_cvtpd_ps(y_pd);			
-			__m512 y = _mm512_concat_ps256(y_ps, y_ps);
+			__m512 y = _mm512_broadcast_f32x8(y_ps);
 
 			__m512i values = mandelbrot(x, y, limit);
-*/
 
-			__m512i values = _mm512_concat_i256(_mm512_cvtpd_epi32(j1_pd), _mm512_cvtpd_epi32(j2_pd));
+
+	//		__m512i values = _mm512_concat_i256(_mm512_cvtpd_epi32(j1_pd), _mm512_cvtpd_epi32(j2_pd));
 
 			int diff = width - j;
 			__mmask16 store_mask = 0xffffU;
