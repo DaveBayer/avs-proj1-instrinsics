@@ -118,7 +118,7 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			__mmask16 store_mask = 0xffffU;
 			
 			if (diff < AVX512_SIZE_PS)
-				store_mask <<= AVX512_SIZE_PS - diff;
+				store_mask >>= AVX512_SIZE_PS - diff;
 
 			std::cout << "i: " << std::dec << i
 					  << " j: " << std::dec << j
