@@ -42,7 +42,7 @@ static inline int mandelbrot(T real, T imag, int limit)
 
 	//	return limit;
 */
-	int *p = (int *) ((void *) &imag);
+	int *p = (int *) ((void *) &real);
 	return *p;
 //	return static_cast<int>(imag);
 }

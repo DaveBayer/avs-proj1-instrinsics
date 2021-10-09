@@ -69,7 +69,7 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 	return result;
 	*/
 
-	return _mm512_castps_si512(imag);
+	return _mm512_castps_si512(real);
 //	return _mm512_cvtps_epi32(imag);
 }
 
