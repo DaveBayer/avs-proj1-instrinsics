@@ -4,7 +4,7 @@ SCRIPT_ROOT_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 CALCULATORS=("ref" "line" "batch")
 
 for calc in "${CALCULATORS[@]}"; do
-    ./mandelbrot -s 512 -i 100 -c $calc --batch cmp_$calc.npz
+    ./mandelbrot -s 4 -i 10 -c $calc --batch cmp_$calc.npz
 done
 
 VALID=1
