@@ -112,7 +112,7 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			__m512i values = mandelbrot(x, y, limit);
 */
 
-			__m512i values = _mm512_set_epi32(j, j+1, j+2, j+3, j+4, j+5, j+6, j+7, j+8
+			__m512i values = _mm512_set_epi32(j, j+1, j+2, j+3, j+4, j+5, j+6, j+7, j+8,
 										      j+9, j+10, j+11, j+12, j+13, j+14, j+15);
 
 			int diff = width - j;
