@@ -69,7 +69,7 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 	return result;
 	*/
 
-	return _mm512_cvtps_epi32(imag);
+	return _mm512_castps_si512(imag);
 }
 
 static inline __m512 _mm512_concat_ps256(__m256 a, __m256 b)
@@ -135,11 +135,6 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			
 			if (diff < AVX512_SIZE_PS)
 				store_mask >>= AVX512_SIZE_PS - diff;
-
-			std::cout << "i: " << std::dec << i
-					  << " j: " << std::dec << j
-					  << " diff: " << std::dec << diff
-					  << " mask: " << std::hex << store_mask << std::endl;
 
 			_mm512_mask_storeu_epi32(col_ptr, store_mask, values);
 		}
