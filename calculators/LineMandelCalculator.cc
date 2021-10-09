@@ -33,6 +33,7 @@ LineMandelCalculator::~LineMandelCalculator() {
 
 static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 {
+	/*
 	__m512i result = _mm512_setzero_epi32();
 	__mmask16 result_mask = 0U;
 	const __mmask16 target_mask = 0xffffU;
@@ -66,6 +67,9 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 	result = _mm512_mask_mov_epi32(result, result_mask ^ target_mask, _mm512_set1_epi32(limit));
 
 	return result;
+	*/
+
+	return _mm512_cvtps_epi32(real);
 }
 
 static inline __m512 _mm512_concat_ps256(__m256 a, __m256 b)
