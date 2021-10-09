@@ -69,7 +69,7 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 	return result;
 	*/
 
-	return _mm512_cvtps_epi32(real);
+	return _mm512_cvtps_epi32(imag);
 }
 
 static inline __m512 _mm512_concat_ps256(__m256 a, __m256 b)
