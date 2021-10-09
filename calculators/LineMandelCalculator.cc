@@ -120,7 +120,7 @@ int * LineMandelCalculator::calculateMandelbrot () {
 					  << "\tj: " << j << "\t";
 
 			if (j + AVX512_SIZE_PS < width)
-				_mm512_storeu_epi32(pdata, values);
+				_mm512_mask_storeu_epi32(pdata, 0xffff, values);
 			else {
 				int diff = width - j;
 				__mmask16 store_mask = (1U << diff) - 1;
