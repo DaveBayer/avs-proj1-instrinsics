@@ -113,7 +113,7 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			__m512i values = mandelbrot(x, y, limit);
 */
 
-			__m512i values = _mm512_set1_epi32(j);
+			__m512i values = _mm512_set1_epi32((1 << (j % AVX512_SIZE_PS)) - 1);
 
 			_mm512_mask_storeu_epi32(pdata, (1 << (j % AVX512_SIZE_PS)) - 1, values);
 
