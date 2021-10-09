@@ -125,13 +125,16 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			
 			pdata += AVX512_SIZE_PS;
 		}
+	}
 
-		for (int k = 0; k < width; k++) {
-			std::cout << std::dec << pdata[k] << " ";
-		}
-
+	for (int i = 0; i < height; i++) {
+		for (int j = 0; j < width; j++)
+			std::cout << std::dec << data[i * height + j] << " ";
+			
 		std::cout << std::endl;
 	}
+
+	
 
 	return data;
 }
