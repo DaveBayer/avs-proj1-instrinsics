@@ -42,18 +42,29 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 	__m512 zReal = real;
 	__m512 zImag = imag;
 
+	float tmp[16] = { 0.f };
+
 	for (int i = 0; i < limit; i++) {
-		__m512 r2 = _mm512_mul_ps(zReal, zReal);
-		__m512 i2 = _mm512_mul_ps(zImag, zImag);
+		const __m512 r2 = _mm512_mul_ps(zReal, zReal);
+		const __m512 i2 = _mm512_mul_ps(zImag, zImag);
 
 	//	if (r2 + i2 > 4.0f) then write i to result
 		__mmask16 test_mask = _mm512_cmp_ps_mask(_mm512_add_ps(r2, i2), four, _CMP_GT_OQ);
 
 		result = _mm512_mask_mov_epi32(result, test_mask & result_mask, _mm512_set1_epi32(i));
+		result = _mm512_mask_mov_epi32(result, test_mask & result_mask, _mm512_set1_epi32(i));
 		result_mask &= ~test_mask;
 
+		_mm512_mask_storeu_epi32(tmp, result_mask, result);
+
+		std::cout << std::dec << i << ": tm: " << std::hex << test_mask << " rm: " << result_mask << "\t";
+		for (int i = 0; i < 16; i++) {
+			std::cout << tmp[i] << " ";
+		}
+		std::cout << std::endl;
+
 		if (result_mask == 0x0000U)
-			break;
+			return result;
 
 	//	zImag = 2.0f * zReal * zImag + imag;
 		zImag = _mm512_fmadd_ps(two, _mm512_mul_ps(zReal, zImag), imag);
@@ -127,18 +138,20 @@ int * LineMandelCalculator::calculateMandelbrot () {
 
 			_mm512_mask_storeu_epi32(col_ptr, store_mask, values);
 		}
-	}
 
-	for (int i = 0; i < height; i++) {
-		std::cout << std::dec << i << ":\t";
+		break;
+	}
+/*
+//	for (int i = 0; i < height; i++) {
+//		std::cout << std::dec << i << ":\t";
 
 		for (int j = 0; j < width; j++)
 			std::cout << std::dec << data[i * width + j] << " ";
 
 		std::cout << std::endl;
-	}
+//	}
 
-	
+	*/
 
 	return data;
 }
