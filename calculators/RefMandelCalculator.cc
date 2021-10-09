@@ -42,7 +42,7 @@ static inline int mandelbrot(T real, T imag, int limit)
 
 	//	return limit;
 */
-	int *p = (float *) &imag;
+	int *p = (void *) &imag;
 	return *p;
 }
 
