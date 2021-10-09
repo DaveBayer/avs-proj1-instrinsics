@@ -31,8 +31,6 @@ LineMandelCalculator::~LineMandelCalculator() {
 	data = nullptr;
 }
 
-static inline __m512i 
-
 static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 {
 	__m512i result = _mm512_setzero_epi32();
@@ -81,13 +79,13 @@ int * LineMandelCalculator::calculateMandelbrot () {
 	const int AVX512_SIZE_PS = 16;
 	const int AVX512_SIZE_PD = 8;
 
-	const __m512d dx, dy, x_start, y_start;
+	__m512d dx, dy, x_start, y_start;
 
-	dx = _mm512_set1_pd(this.dx);
-	dy = _mm512_set1_pd(this.dy);
+	dx = _mm512_set1_pd(this->dx);
+	dy = _mm512_set1_pd(this->dy);
 
-	x_start = _mm512_set1_pd(this.x_start);
-	y_start = _mm512_set1_pd(this.y_start);
+	x_start = _mm512_set1_pd(this->x_start);
+	y_start = _mm512_set1_pd(this->y_start);
 
 	for (int i = 0; i < height; i++) {
 		const __m512d i_pd = _mm512_set1_pd(i);
