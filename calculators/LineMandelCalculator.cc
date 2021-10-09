@@ -72,6 +72,16 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 
 #define _MM512_FILL_INCREMENTS_PD(from) _mm512_set_pd(from, from + 1, from + 2, from + 3, from + 4, from + 5, from + 6, from + 7)
 
+static inline __m512 _mm512_concat_ps256(__m256 a, __m256 b)
+{
+	__m512 x;
+
+	x = _mm512_castps256_ps512(b);
+	x = _mm512_mask_broadcast_f32x8(x, 0xff00, a);
+
+	return x;
+}
+
 int * LineMandelCalculator::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
 
@@ -96,11 +106,11 @@ int * LineMandelCalculator::calculateMandelbrot () {
 
 			__m512d x1_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j1_pd, dx_pd));
 			__m512d x2_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j2_pd, dx_pd));
-			__m512 x = _mm512_broadcast_f32x8(_mm512_cvtpd_ps(x1_pd), _mm512_cvtpd_ps(x2_pd));
+			__m512 x = _mm512_concat_ps256(_mm512_cvtpd_ps(x1_pd), _mm512_cvtpd_ps(x2_pd));
 
 			__m512d y_pd = _mm512_add_pd(y_start_pd, _mm512_mul_pd(i, dx_pd));
 			__m256 y_ps = _mm512_cvtpd_ps(y_pd);			
-			__m512 y = _mm512_broadcast_f32x8(y_ps, y_ps);
+			__m512 y = _mm512_concat_ps256(y_ps, y_ps);
 
 			__m512i values = mandelbrot(x, y, limit);
 			_mm512_mask_storeu_epi32(pdata, (1 << (j % AVX512_SIZE_PS)) - 1, values);
