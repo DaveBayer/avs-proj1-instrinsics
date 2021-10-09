@@ -34,8 +34,7 @@ LineMandelCalculator::~LineMandelCalculator() {
 static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 {
 	__m512i result = _mm512_setzero_epi32();
-	__mmask16 result_mask = 0x0000U;
-	const __mmask16 target_mask = 0xffffU;
+	__mmask16 result_mask = 0xffffU;
 
 	const __m512 two = _mm512_set1_ps(2.f);
 	const __m512 four = _mm512_set1_ps(4.f);
@@ -50,10 +49,10 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 	//	if (r2 + i2 > 4.0f) then write i to result
 		__mmask16 test_mask = _mm512_cmp_ps_mask(_mm512_add_ps(r2, i2), four, _CMP_GT_OQ);
 
-		result = _mm512_mask_mov_epi32(result, (test_mask ^ result_mask) & test_mask, _mm512_set1_epi32(i));
-		result_mask |= test_mask;
+		result = _mm512_mask_mov_epi32(result, test_mask & result_mask, _mm512_set1_epi32(i));
+		result_mask &= ~test_mask;
 
-		if (result_mask == target_mask)
+		if (result_mask == 0x0000U)
 			break;
 
 	//	zImag = 2.0f * zReal * zImag + imag;
@@ -63,7 +62,7 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 		zReal = _mm512_sub_ps(r2, _mm512_add_ps(i2, real));
 	}
 
-	result = _mm512_mask_mov_epi32(result, result_mask ^ target_mask, _mm512_set1_epi32(limit));
+	result = _mm512_mask_mov_epi32(result, result_mask, _mm512_set1_epi32(limit));
 
 	return result;
 	
