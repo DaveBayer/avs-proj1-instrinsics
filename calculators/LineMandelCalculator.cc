@@ -31,7 +31,8 @@ LineMandelCalculator::~LineMandelCalculator() {
 	data = nullptr;
 }
 
-static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit, __mmask16 mask)
+static inline __attribute__((always_inline))
+__m512i mandelbrot(__m512 real, __m512 imag, int limit, __mmask16 mask)
 {
 	__m512i result = _mm512_setzero_epi32();
 	__mmask16 result_mask = mask;
@@ -85,7 +86,8 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit, __mmask16 
 	
 }
 
-static inline __m512 _mm512_concat_ps256(__m256 a, __m256 b)
+static inline __attribute__((always_inline))
+__m512 _mm512_concat_ps256(__m256 a, __m256 b)
 {
 	__m512 x;
 
@@ -95,7 +97,8 @@ static inline __m512 _mm512_concat_ps256(__m256 a, __m256 b)
 	return x;
 }
 
-static inline __m512i _mm512_concat_i256(__m256i a, __m256i b)
+static inline __attribute__((always_inline))
+__m512i _mm512_concat_i256(__m256i a, __m256i b)
 {
 	__m512i x;
 
