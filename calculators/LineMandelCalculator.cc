@@ -57,7 +57,8 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit, __mmask16 
 			if ((1U << i) & mask)
 				std::cout << tmp[i] << " " << ((test_mask >> i) & 1U) << "\t";
 		}
-		break;
+		
+		std::cout << std::endl;
 
 		result = _mm512_mask_mov_epi32(result, test_mask & result_mask, _mm512_set1_epi32(i));
 		//	__mmask16 res_mask_old = result_mask;
