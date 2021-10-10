@@ -55,7 +55,7 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit, __mmask16 
 
 		for (int i = 0; i < 16; i++) {
 			if ((1U << i) & mask)
-				std::cout << tmp[i] << " " << ((1U << i) & test_mask) << "\t";
+				std::cout << tmp[i] << " " << ((test_mask >> i) & 1U) << "\t";
 		}
 		break;
 
