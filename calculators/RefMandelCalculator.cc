@@ -34,7 +34,6 @@ static inline int mandelbrot(T real, T imag, int limit)
 		T i2 = zImag * zImag;
 
 		std::cout << (r2 + i2) << " " << !!((r2 + i2) > 4.f) << "\t";
-		std::cout << std::endl;
 
 		if (r2 + i2 > 4.0f)
 			return i;
@@ -58,7 +57,7 @@ int *RefMandelCalculator::calculateMandelbrot()
 
 			int value = mandelbrot(x, y, limit);
 
-			
+			std::cout << std::endl;
 			*(pdata++) = value;
 		}
 
