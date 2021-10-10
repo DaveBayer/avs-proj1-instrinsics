@@ -58,9 +58,11 @@ int *RefMandelCalculator::calculateMandelbrot()
 
 			int value = mandelbrot(x, y, limit);
 
-			std::cout << std::endl;
+			
 			*(pdata++) = value;
 		}
+
+		std::cout << std::endl;
 	}
 	/*
 	for (int i = 0; i < height; i++) {
