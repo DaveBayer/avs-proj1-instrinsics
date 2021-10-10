@@ -42,26 +42,30 @@ static inline __m512i mandelbrot(__m512 real, __m512 imag, int limit)
 	__m512 zReal = real;
 	__m512 zImag = imag;
 
-	int tmp[16] = { 0 };
+	float tmp[16] = { 0.f };
 
 	for (int i = 0; i < limit; i++) {
 		const __m512 r2 = _mm512_mul_ps(zReal, zReal);
 		const __m512 i2 = _mm512_mul_ps(zImag, zImag);
 
-	//	if (r2 + i2 > 4.0f) then write i to result
-		__mmask16 test_mask = _mm512_cmp_ps_mask(_mm512_add_ps(r2, i2), four, _CMP_GT_OS);
-
-		result = _mm512_mask_mov_epi32(result, test_mask & result_mask, _mm512_set1_epi32(i));
-		__mmask16 res_mask_old = result_mask;
-		result_mask &= ~test_mask;
-
-		_mm512_mask_storeu_epi32(tmp, ~result_mask, result);
-
-		std::cout << std::dec << i << std::hex << ": rm.old: " << res_mask_old << " tm: "  << test_mask << " rm: " << result_mask << "\t";
+		_mm512_storeu_ps(tmp, _mm512_add_ps(r2, i2));
 		for (int i = 0; i < 16; i++) {
 			std::cout << tmp[i] << " ";
 		}
 		std::cout << std::endl;
+		break;
+
+	//	if (r2 + i2 > 4.0f) then write i to result
+		__mmask16 test_mask = _mm512_cmp_ps_mask(_mm512_add_ps(r2, i2), four, _CMP_GT_OS);
+
+		result = _mm512_mask_mov_epi32(result, test_mask & result_mask, _mm512_set1_epi32(i));
+		//	__mmask16 res_mask_old = result_mask;
+		result_mask &= ~test_mask;
+
+		//	_mm512_mask_storeu_epi32(tmp, ~result_mask, result);
+
+		//	std::cout << std::dec << i << std::hex << ": rm.old: " << res_mask_old << " tm: "  << test_mask << " rm: " << result_mask << "\t";
+
 
 		if (result_mask == 0x0000U)
 			return result;
@@ -141,7 +145,7 @@ int * LineMandelCalculator::calculateMandelbrot () {
 
 		std::cout << std::endl;
 	}
-
+/*
 	for (int i = 0; i < height; i++) {
 		std::cout << std::dec << i << ":\t";
 
@@ -150,6 +154,6 @@ int * LineMandelCalculator::calculateMandelbrot () {
 
 		std::cout << std::endl;
 	}
-
+*/
 	return data;
 }
