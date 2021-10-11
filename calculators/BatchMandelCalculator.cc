@@ -132,8 +132,9 @@ int * BatchMandelCalculator::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
 
 	for (int i = 0; i < height; i += BATCH_SIZE) {
-
-		int diff = height - i;
+		for (int j = 0; j < width; j += BATCH_SIZE) {
+			batch16x16(i, j);
+		}
 	}
 
 	return data;
