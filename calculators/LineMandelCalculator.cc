@@ -53,14 +53,14 @@ __m512i mandelbrot(__m512 real, __m512 imag, int limit, __mmask16 mask)
 
 	//	if (r2 + i2 > 4.0f) then write i to result
 		__mmask16 test_mask = _mm512_cmp_ps_mask(_mm512_add_ps(r2, i2), four, _CMP_GT_OS);
-
+/*
 		for (int i = 0; i < 16; i++) {
 			if ((1U << i) & mask)
 				std::cout << tmp[i] << " " << ((test_mask >> i) & 1U) << "\t";
 		}
 		
 		std::cout << std::endl;
-
+*/
 		result = _mm512_mask_mov_epi32(result, test_mask & result_mask, _mm512_set1_epi32(i));
 		//	__mmask16 res_mask_old = result_mask;
 		result_mask &= ~test_mask;
@@ -73,8 +73,11 @@ __m512i mandelbrot(__m512 real, __m512 imag, int limit, __mmask16 mask)
 		if (result_mask == 0x0000U)
 			return result;
 		
+	//	zImag = 2.0f * zReal * zImag + imag;
 		zImag = _mm512_fmadd_ps(two, _mm512_mul_ps(zReal, zImag), imag);
 //		zImag = _mm512_add_ps(_mm512_mul_ps(two, _mm512_mul_ps(zReal, zImag)), imag);
+
+	//	zReal = r2 - i2 + real;
 		zReal = _mm512_add_ps(_mm512_sub_ps(r2, i2), real);
 /*
 	//	zImag = 2.0f * zReal * zImag + imag;
@@ -160,9 +163,9 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			pdata += inc;
 		}
 
-		std::cout << std::endl;
+//		std::cout << std::endl;
 	}
-/*
+
 	for (int i = 0; i < height; i++) {
 		std::cout << std::dec << i << ":\t";
 
@@ -171,6 +174,6 @@ int * LineMandelCalculator::calculateMandelbrot () {
 
 		std::cout << std::endl;
 	}
-*/
+
 	return data;
 }
