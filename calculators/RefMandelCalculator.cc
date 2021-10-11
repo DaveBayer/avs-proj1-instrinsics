@@ -63,7 +63,7 @@ int *RefMandelCalculator::calculateMandelbrot()
 
 //		std::cout << std::endl;
 	}
-	
+	/*
 	for (int i = 0; i < height; i++) {
 		std::cout << std::dec << i << ":\t";
 
@@ -72,6 +72,6 @@ int *RefMandelCalculator::calculateMandelbrot()
 
 		std::cout << std::endl;
 	}
-	
+	*/
 	return data;
 }
