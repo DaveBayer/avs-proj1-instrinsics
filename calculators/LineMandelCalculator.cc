@@ -8,14 +8,14 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <thread>
-#include <array>
+
 
 #include <stdlib.h>
 #include <immintrin.h>
-
+/*
+#include <thread>
 #include "ThreadPool.h"
-
+*/
 #include "LineMandelCalculator.h"
 
 
@@ -72,7 +72,6 @@ __m512i mandelbrot(__m512 real, __m512 imag, int limit, __mmask16 mask)
 	result = _mm512_mask_mov_epi32(result, result_mask, _mm512_set1_epi32(limit));
 
 	return result;
-	
 }
 
 static inline __attribute__((always_inline))
@@ -89,7 +88,7 @@ __m512 _mm512_concat_ps256(__m256 a, __m256 b)
 #define AVX512_SIZE_PD 8
 #define AVX512_SIZE_PS 16
 
-int *LineMandelCalculator::calculateMandelbrot2 () {
+int *LineMandelCalculator::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
 	int *pdata = data;
 
@@ -137,7 +136,7 @@ int *LineMandelCalculator::calculateMandelbrot2 () {
 
 	return data;
 }
-
+/*
 void mandelbrot_line(int line_num, int *pdata, int width, double dx, double x_start, double dy, double y_start, int limit)
 {
 	__m512d dx_pd, x_start_pd, inc_pd;
@@ -197,3 +196,4 @@ int *LineMandelCalculator::calculateMandelbrot () {
 
 	return data;
 }
+*/

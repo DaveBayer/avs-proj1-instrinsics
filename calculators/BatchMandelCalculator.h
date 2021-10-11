@@ -19,6 +19,8 @@ public:
 private:
     // @TODO add all internal parameters
     int *data;
+
+    void batch16x16(int, int);
 };
 
 #endif
