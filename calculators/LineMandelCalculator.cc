@@ -14,7 +14,7 @@
 #include <stdlib.h>
 #include <immintrin.h>
 
-
+#include "ThreadPool.h"
 
 #include "LineMandelCalculator.h"
 
@@ -184,17 +184,15 @@ void mandelbrot_line(int line_num, int *pdata, int width, double dx, double x_st
 int *LineMandelCalculator::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
 
-	std::thread *workers = new std::thread[height];
+	int max_threads = std::thread::hardware_concurrency();
+
+	ThreadPool thread_pool(max_threads);
 
 	int *pdata = data;
 
 	for (int i = 0; i < height; i++) {
-		workers[i] = std::thread(mandelbrot_line, i, pdata, width, dx, x_start, dy, y_start, limit);
+		thread_pool.enqueue(mandelbrot_line, i, pdata, width, dx, x_start, dy, y_start, limit);
 		pdata += width;
-	}
-
-	for (int i = 0; i < height; i++) {
-		workers[i].join();
 	}
 
 	return data;
