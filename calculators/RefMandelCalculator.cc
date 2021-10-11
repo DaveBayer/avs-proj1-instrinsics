@@ -33,8 +33,6 @@ static inline int mandelbrot(T real, T imag, int limit)
 		T r2 = zReal * zReal;
 		T i2 = zImag * zImag;
 
-//		std::cout << (r2 + i2) << " " << !!((r2 + i2) > 4.f) << "\t";
-
 		if (r2 + i2 > 4.0f)
 			return i;
 
@@ -57,21 +55,9 @@ int *RefMandelCalculator::calculateMandelbrot()
 
 			int value = mandelbrot(x, y, limit);
 
-//			std::cout << std::endl;
 			*(pdata++) = value;
 		}
-
-//		std::cout << std::endl;
 	}
-	/*
-	for (int i = 0; i < height; i++) {
-		std::cout << std::dec << i << ":\t";
 
-		for (int j = 0; j < width; j++)
-			std::cout << std::dec << data[i * width + j] << " ";
-
-		std::cout << std::endl;
-	}
-	*/
 	return data;
 }
