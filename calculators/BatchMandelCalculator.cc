@@ -98,7 +98,7 @@ void BatchMandelCalculator::batch16x16(int i_from, int j_from)
 	if (diff < BATCH_SIZE)
 		mask >>= BATCH_SIZE - diff;
 
-	int *pdata = data + i_from * width;
+	int *pdata = data + i_from * width + j_from;
 
 	__m512d dx_pd, x_start_pd, inc_pd;
 
