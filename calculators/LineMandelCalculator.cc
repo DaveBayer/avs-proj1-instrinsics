@@ -110,6 +110,7 @@ __m512i _mm512_concat_i256(__m256i a, __m256i b)
 
 int * LineMandelCalculator::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
+	int *pdata = data;
 
 	const int AVX512_SIZE_PS = 16;
 	const int AVX512_SIZE_PD = 8;
@@ -121,17 +122,21 @@ int * LineMandelCalculator::calculateMandelbrot () {
 
 	inc_pd = _mm512_set_pd(7., 6., 5., 4., 3., 2., 1., 0.);
 
-	for (int i = 0, *row_ptr = data; i < height; i++, row_ptr += width) {
+	for (int i = 0; i < height; i++) {
 
 	//	y = y_start + i * dy
-		__m512 y = _mm512_set1_ps(y_start + i * dy);
+		const __m512 y = _mm512_set1_ps(y_start + i * dy);
 
-		for (int j = 0, *col_ptr = row_ptr; j < width; j += AVX512_SIZE_PS, col_ptr += AVX512_SIZE_PS) {
+		for (int j = 0; j < width; j += AVX512_SIZE_PS) {
 			int diff = width - j;
+
 			__mmask16 mask = 0xffffU;
+			int inc = AVX512_SIZE_PS;
 			
-			if (diff < AVX512_SIZE_PS)
+			if (diff < AVX512_SIZE_PS) {
 				mask >>= AVX512_SIZE_PS - diff;
+				inc = diff;
+			}
 
 			__m512d j1_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j)), inc_pd);
 			__m512d j2_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j + AVX512_SIZE_PD)), inc_pd);
@@ -144,8 +149,10 @@ int * LineMandelCalculator::calculateMandelbrot () {
 			__m512i values = mandelbrot(x, y, limit, mask);
 
 
-		//	store values in memory pointed by col_ptr using mask
-			_mm512_mask_storeu_epi32(col_ptr, mask, values);
+		//	store values in memory pointed by pdata using mask
+			_mm512_mask_storeu_epi32(pdata, mask, values);
+
+			pdata += inc;
 		}
 
 		std::cout << std::endl;
