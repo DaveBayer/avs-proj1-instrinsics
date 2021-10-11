@@ -45,3 +45,4 @@ include_directories(calculators)
 
 add_executable(mandelbrot ${SOURCE_FILES})
 target_link_libraries(mandelbrot ${ZLIB_LIBRARIES})
+target_link_libraries(mandelbrot pthread)
