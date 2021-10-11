@@ -22,6 +22,19 @@ RefMandelCalculator::~RefMandelCalculator()
 	data = NULL;
 }
 
+void RefMandelCalculator::print_data()
+{
+	for (int i = 0; i < height; i++) {
+		std::cout << i << ":\t";
+
+		for (int j = 0; j < width; j++) {
+			std::cout << data[i * width + j] << " ";
+		}
+
+		std::cout << std::endl;
+	}
+}
+
 template <typename T>
 static inline int mandelbrot(T real, T imag, int limit)
 {

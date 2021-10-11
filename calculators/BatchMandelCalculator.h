@@ -15,6 +15,7 @@ public:
     BatchMandelCalculator(unsigned matrixBaseSize, unsigned limit);
     ~BatchMandelCalculator();
     int * calculateMandelbrot();
+    void print_data();
 
 private:
     // @TODO add all internal parameters

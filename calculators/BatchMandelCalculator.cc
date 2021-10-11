@@ -31,6 +31,19 @@ BatchMandelCalculator::~BatchMandelCalculator() {
 	data = nullptr;
 }
 
+void BatchMandelCalculator::print_data()
+{
+	for (int i = 0; i < height; i++) {
+		std::cout << i << ":\t";
+
+		for (int j = 0; j < width; j++) {
+			std::cout << data[i * width + j] << " ";
+		}
+
+		std::cout << std::endl;
+	}
+}
+
 static inline __attribute__((always_inline))
 __m512i mandelbrot(__m512 real, __m512 imag, int limit, __mmask16 mask)
 {
@@ -135,16 +148,6 @@ int * BatchMandelCalculator::calculateMandelbrot () {
 		for (int j = 0; j < width; j += BATCH_SIZE) {
 			batch16x16(i, j);
 		}
-	}
-
-	for (int i = 0; i < height; i++) {
-		std::cout << i << ":\t";
-
-		for (int j = 0; j < width; j++) {
-			std::cout << data[i * width + j] << " ";
-		}
-
-		std::cout << std::endl;
 	}
 
 	return data;

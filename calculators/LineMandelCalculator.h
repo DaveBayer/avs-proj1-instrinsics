@@ -14,6 +14,7 @@ public:
     ~LineMandelCalculator();
     int *calculateMandelbrot();
 //    int *calculateMandelbrot2();
+    void print_data();
 
 private:
     // @TODO add all internal parameters

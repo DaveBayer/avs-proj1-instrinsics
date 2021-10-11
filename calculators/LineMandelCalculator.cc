@@ -34,6 +34,19 @@ LineMandelCalculator::~LineMandelCalculator() {
 	data = nullptr;
 }
 
+void LineMandelCalculator::print_data()
+{
+	for (int i = 0; i < height; i++) {
+		std::cout << i << ":\t";
+
+		for (int j = 0; j < width; j++) {
+			std::cout << data[i * width + j] << " ";
+		}
+
+		std::cout << std::endl;
+	}
+}
+
 static inline __attribute__((always_inline))
 __m512i mandelbrot(__m512 real, __m512 imag, int limit, __mmask16 mask)
 {

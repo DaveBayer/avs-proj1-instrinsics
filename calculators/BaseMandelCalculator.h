@@ -35,7 +35,8 @@ public:
      * @param batchMode true = compact CSV output
      */
     void info(std::ostream & cout, bool batchMode);
-    
+    virtual void print_data() {}
+
     int width; // width of the set
     int height; // hegiht of the set
 

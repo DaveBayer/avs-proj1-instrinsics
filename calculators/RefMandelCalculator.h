@@ -16,6 +16,7 @@ public:
     RefMandelCalculator(unsigned matrixBaseSize, unsigned limit);
     ~RefMandelCalculator();
     int *calculateMandelbrot();
+    void print_data();
 
 private:
     int *data;

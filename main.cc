@@ -50,8 +50,10 @@ void evaluateCalculator(unsigned baseSize, unsigned iters, const std::string &fi
 	{
 		if(data == NULL)
 			std::cerr << "No data returned, skipping saving!" << std::endl;
-		else
+		else {
 			cnpy::npz_save(fileName, "d", data, {(size_t)calculator.height, (size_t)calculator.width}, "wb");
+//			calculator.print_data();
+		}
 	}
 }
 
