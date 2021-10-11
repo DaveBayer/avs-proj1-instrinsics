@@ -72,12 +72,16 @@ __m512i mandelbrot(__m512 real, __m512 imag, int limit, __mmask16 mask)
 
 		if (result_mask == 0x0000U)
 			return result;
-
+		
+		zImag = _mm512_add_ps(_mm512_mul_ps(two, _mm512_mul_ps(zReal, zImag)), imag);
+		zReal = _mm512_add_ps(_mm512_sub_ps(r2, i2), real);
+/*
 	//	zImag = 2.0f * zReal * zImag + imag;
 		zImag = _mm512_fmadd_ps(two, _mm512_mul_ps(zReal, zImag), imag);
 
 	//	zReal = r2 - i2 + real;
 		zReal = _mm512_sub_ps(r2, _mm512_add_ps(i2, real));
+*/
 	}
 
 	result = _mm512_mask_mov_epi32(result, result_mask, _mm512_set1_epi32(limit));
