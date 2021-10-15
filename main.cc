@@ -20,6 +20,7 @@
 
 #include "RefMandelCalculator.h"
 #include "LineMandelCalculator.h"
+#include "LineMandelCalculator2.h"
 #include "BatchMandelCalculator.h"
 
 using namespace std;
@@ -92,6 +93,10 @@ int main(int argc, char *argv[])
 		else if (calculator == "line")
 		{
 			evaluateCalculator<LineMandelCalculator>(args["size"].as<unsigned>(), args["iters"].as<unsigned>(), args["output"].as<std::string>(), args.count("batch"));
+		}
+		else if (calculator == "line2")
+		{
+			evaluateCalculator<LineMandelCalculator2>(args["size"].as<unsigned>(), args["iters"].as<unsigned>(), args["output"].as<std::string>(), args.count("batch"));
 		}
 		else if (calculator == "batch")
 		{

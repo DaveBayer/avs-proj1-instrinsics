@@ -16,11 +16,11 @@
 #include <thread>
 #include "ThreadPool.h"
 */
-#include "LineMandelCalculator.h"
+#include "LineMandelCalculator2.h"
 
 
-LineMandelCalculator::LineMandelCalculator (unsigned matrixBaseSize, unsigned limit) :
-	BaseMandelCalculator(matrixBaseSize, limit, "LineMandelCalculator")
+LineMandelCalculator2::LineMandelCalculator2 (unsigned matrixBaseSize, unsigned limit) :
+	BaseMandelCalculator(matrixBaseSize, limit, "LineMandelCalculator2")
 {
 	// @TODO allocate & prefill memory
 
@@ -31,7 +31,7 @@ LineMandelCalculator::LineMandelCalculator (unsigned matrixBaseSize, unsigned li
 	}
 }
 
-LineMandelCalculator::~LineMandelCalculator()
+LineMandelCalculator2::~LineMandelCalculator2()
 {
 	// @TODO cleanup the memory
 
@@ -39,7 +39,7 @@ LineMandelCalculator::~LineMandelCalculator()
 	data = nullptr;
 }
 
-void LineMandelCalculator::print_data()
+void LineMandelCalculator2::print_data()
 {
 	for (int i = 0; i < height; i++) {
 		std::cout << i << ":\t";
@@ -106,7 +106,7 @@ __m512 _mm512_concat_ps256(__m256 a, __m256 b)
 #define AVX512_SIZE_PD 8
 #define AVX512_SIZE_PS 16
 
-int *LineMandelCalculator::calculateMandelbrot () {
+int *LineMandelCalculator2::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
 	int *pdata = data;
 
@@ -146,7 +146,7 @@ int *LineMandelCalculator::calculateMandelbrot () {
 
 
 		//	store values in memory pointed by pdata using mask
-			_mm512_mask_store_epi32(pdata, mask, values);
+			_mm512_mask_storeu_epi32(pdata, mask, values);
 
 			pdata += inc;
 		}
@@ -194,7 +194,7 @@ void mandelbrot_line(int line_num, int *pdata, int width, double dx, double x_st
 
 
 	//	store values in memory pointed by pdata using mask
-		_mm512_mask_store_epi32(pdata, mask, values);
+		_mm512_mask_storeu_epi32(pdata, mask, values);
 
 		pdata += inc;
 	}
