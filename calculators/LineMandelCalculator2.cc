@@ -53,58 +53,47 @@ void LineMandelCalculator2::print_data()
 }
 
 static inline __attribute__((always_inline))
-__m512i mandelbrot(__m512 real, __m512 imag, int limit, __mmask16 mask)
+__m256i mandelbrot(__m256 real, __m256 imag, int limit, __mmask16 mask)
 {
-	__m512i result = _mm512_setzero_epi32();
+	__m256i result = _mm256_setzero_si256();
 	__mmask16 result_mask = mask;
 
-	const __m512 two = _mm512_set1_ps(2.f);
-	const __m512 four = _mm512_set1_ps(4.f);
+	const __m256 two = _mm256_set1_ps(2.f);
+	const __m256 four = _mm256_set1_ps(4.f);
 
-	__m512 zReal = real;
-	__m512 zImag = imag;
+	__m256 zReal = real;
+	__m256 zImag = imag;
 
 	for (int i = 0; i < limit; i++) {
 	//	r2 = zReal * zReal
-		const __m512 r2 = _mm512_mul_ps(zReal, zReal);
+		const __m256 r2 = _mm256_mul_ps(zReal, zReal);
 
 	//	i2 = zImag * zImag
-		const __m512 i2 = _mm512_mul_ps(zImag, zImag);
+		const __m256 i2 = _mm256_mul_ps(zImag, zImag);
 
 	//	if (r2 + i2 > 4.0f) then write i to result and update result_mask
-		__mmask16 test_mask = _mm512_cmp_ps_mask(_mm512_add_ps(r2, i2), four, _CMP_GT_OS);
+		__mmask16 test_mask = _mm256_cmp_ps_mask(_mm256_add_ps(r2, i2), four, _CMP_GT_OS);
 
-		result = _mm512_mask_mov_epi32(result, test_mask & result_mask, _mm512_set1_epi32(i));
+		result = _mm256_mask_mov_epi32(result, test_mask & result_mask, _mm256_set1_epi32(i));
 		result_mask &= ~test_mask;
 
 		if (result_mask == 0x0000U)
 			return result;
 		
 	//	zImag = 2.0f * zReal * zImag + imag;
-		zImag = _mm512_fmadd_ps(two, _mm512_mul_ps(zReal, zImag), imag);
+		zImag = _mm256_fmadd_ps(two, _mm256_mul_ps(zReal, zImag), imag);
 
 	//	zReal = r2 - i2 + real;
-		zReal = _mm512_add_ps(_mm512_sub_ps(r2, i2), real);
+		zReal = _mm256_add_ps(_mm256_sub_ps(r2, i2), real);
 	}
 
-	result = _mm512_mask_mov_epi32(result, result_mask, _mm512_set1_epi32(limit));
+	result = _mm256_mask_mov_epi32(result, result_mask, _mm256_set1_epi32(limit));
 
 	return result;
 }
 
-static inline __attribute__((always_inline))
-__m512 _mm512_concat_ps256(__m256 a, __m256 b)
-{
-	__m512 x;
-
-	x = _mm512_castps256_ps512(a);
-	x = _mm512_mask_broadcast_f32x8(x, 0xff00, b);
-
-	return x;
-}
-
-#define AVX512_SIZE_PD 8
-#define AVX512_SIZE_PS 16
+#define AVX256_SIZE_PD 4
+#define AVX256_SIZE_PS 8
 
 int *LineMandelCalculator2::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
@@ -119,34 +108,31 @@ int *LineMandelCalculator2::calculateMandelbrot () {
 
 	for (int i = 0; i < height; i++) {
 	//	y = y_start + i * dy
-		const __m512 y = _mm512_set1_ps(y_start + i * dy);
+		const __m256 y = _mm256_set1_ps(y_start + i * dy);
 
-		for (int j = 0; j < width; j += AVX512_SIZE_PS) {
-		//	prepare j
-			__m512d j1_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j)), inc_pd);
-			__m512d j2_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j + AVX512_SIZE_PD)), inc_pd);
+		for (int j = 0; j < width; j += AVX256_SIZE_PS) {
+			__m512d j_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j)), inc_pd);
 
 		//	x = x_start + j * dx
-			__m512d x1_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j1_pd, dx_pd));
-			__m512d x2_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j2_pd, dx_pd));
-			__m512 x = _mm512_concat_ps256(_mm512_cvtpd_ps(x1_pd), _mm512_cvtpd_ps(x2_pd));
+			__m512d x_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j_pd, dx_pd));
+			__m256 x = _mm512_cvtpd_ps(x_pd);
 
 		//	get mask for avx instructions and data pointer increment
 			__mmask16 mask = 0xffffU;
-			int inc = AVX512_SIZE_PS;
+			int inc = AVX256_SIZE_PS;
 
 			int diff = width - j;
 			
-			if (diff < AVX512_SIZE_PS) {
-				mask >>= AVX512_SIZE_PS - diff;
+			if (diff < AVX256_SIZE_PS) {
+				mask >>= AVX256_SIZE_PS - diff;
 				inc = diff;
 			}
 
-			__m512i values = mandelbrot(x, y, limit, mask);
+			__m256i values = mandelbrot(x, y, limit, mask);
 
 
 		//	store values in memory pointed by pdata using mask
-			_mm512_mask_storeu_epi32(pdata, mask, values);
+			_mm256_mask_storeu_epi32(pdata, mask, values);
 
 			pdata += inc;
 		}

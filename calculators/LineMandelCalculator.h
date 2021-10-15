@@ -13,7 +13,7 @@ public:
     LineMandelCalculator(unsigned matrixBaseSize, unsigned limit);
     ~LineMandelCalculator();
     int *calculateMandelbrot();
-//    int *calculateMandelbrot2();
+    int *calculateMandelbrot2();
     void print_data();
 
 private:
