@@ -111,7 +111,6 @@ __m512 _mm512_concat_ps256(__m256 a, __m256 b)
 int *LineMandelCalculator::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
 	int *pdata = data;
-	auto mm512_mask_store_epi32_fn = width % 16 == 0 ? _mm512_mask_store_epi32 : _mm512_mask_storeu_epi32;
 
 	__m512d dx_pd, x_start_pd, inc_pd;
 
@@ -148,7 +147,7 @@ int *LineMandelCalculator::calculateMandelbrot () {
 			__m512i values = mandelbrot(x, y, limit, mask);
 
 		//	store values in memory pointed by pdata using mask
-			mm512_mask_store_epi32_fn(pdata, mask, values);
+			_mm512_mask_storeu_epi32(pdata, mask, values);
 
 			pdata += inc;
 		}

@@ -231,9 +231,9 @@ void BatchMandelCalculator::batch16x16(int i_from, int j_from)
 int * BatchMandelCalculator::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
 
-	for (int i = 0; i < height; i += BATCH_SIZE_8) {
-		for (int j = 0; j < width; j += BATCH_SIZE_8) {
-			batch8x8(i, j);
+	for (int i = 0; i < height; i += BATCH_SIZE_16) {
+		for (int j = 0; j < width; j += BATCH_SIZE_16) {
+			batch16x16(i, j);
 		}
 	}
 
