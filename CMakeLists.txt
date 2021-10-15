@@ -35,6 +35,7 @@ set(SOURCE_FILES
     calculators/BaseMandelCalculator.cc
     calculators/BatchMandelCalculator.cc
     calculators/LineMandelCalculator.cc
+    calculators/LineMandelCalculator2.cc
     calculators/RefMandelCalculator.cc
     common/cnpy.cc
     main.cc
