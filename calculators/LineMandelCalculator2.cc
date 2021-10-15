@@ -53,10 +53,10 @@ void LineMandelCalculator2::print_data()
 }
 
 static inline __attribute__((always_inline))
-__m256i mandelbrot(__m256 real, __m256 imag, int limit, __mmask16 mask)
+__m256i mandelbrot(__m256 real, __m256 imag, int limit, __mmask8 mask)
 {
 	__m256i result = _mm256_setzero_si256();
-	__mmask16 result_mask = mask;
+	__mmask8 result_mask = mask;
 
 	const __m256 two = _mm256_set1_ps(2.f);
 	const __m256 four = _mm256_set1_ps(4.f);
@@ -72,12 +72,12 @@ __m256i mandelbrot(__m256 real, __m256 imag, int limit, __mmask16 mask)
 		const __m256 i2 = _mm256_mul_ps(zImag, zImag);
 
 	//	if (r2 + i2 > 4.0f) then write i to result and update result_mask
-		__mmask16 test_mask = _mm256_cmp_ps_mask(_mm256_add_ps(r2, i2), four, _CMP_GT_OS);
+		__mmask8 test_mask = _mm256_cmp_ps_mask(_mm256_add_ps(r2, i2), four, _CMP_GT_OS);
 
 		result = _mm256_mask_mov_epi32(result, test_mask & result_mask, _mm256_set1_epi32(i));
 		result_mask &= ~test_mask;
 
-		if (result_mask == 0x0000U)
+		if (result_mask == 0x00U)
 			return result;
 		
 	//	zImag = 2.0f * zReal * zImag + imag;
@@ -118,7 +118,7 @@ int *LineMandelCalculator2::calculateMandelbrot () {
 			__m256 x = _mm512_cvtpd_ps(x_pd);
 
 		//	get mask for avx instructions and data pointer increment
-			__mmask16 mask = 0xffffU;
+			__mmask8 mask = 0xffU;
 			int inc = AVX256_SIZE_PS;
 
 			int diff = width - j;
