@@ -24,7 +24,7 @@ LineMandelCalculator::LineMandelCalculator (unsigned matrixBaseSize, unsigned li
 {
 	// @TODO allocate & prefill memory
 
-	data = (int *) _mm_malloc(height * width * sizeof(int), 4);
+	data = (int *) _mm_malloc(height * width * sizeof(int), sizeof(int) * 8);
 	if (data == nullptr) {
 		std::cerr << "Bad alloc" << std::endl;
 		exit(1);
