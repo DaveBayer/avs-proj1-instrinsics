@@ -144,7 +144,7 @@ int *LineMandelCalculator::calculateMandelbrot () {
 
 			__m512i values = mandelbrot(x, y, limit, mask);
 
-
+			std::cout << "Storing.. " << pdata << std::endl;
 		//	store values in memory pointed by pdata using mask
 			_mm512_mask_store_epi32(pdata, mask, values);
 
