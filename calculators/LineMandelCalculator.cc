@@ -30,14 +30,6 @@ LineMandelCalculator::LineMandelCalculator (unsigned matrixBaseSize, unsigned li
 		std::cerr << "Bad alloc" << std::endl;
 		exit(1);
 	}
-
-	int *pdata = data;
-
-	for (int i = 0; i < height; i++) {
-		for (int j = 0; j < width; j++) {
-			*(pdata++) = j;
-		}
-	}
 }
 
 LineMandelCalculator::~LineMandelCalculator()
