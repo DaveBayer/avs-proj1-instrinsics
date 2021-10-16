@@ -16,7 +16,7 @@
 
 #include "BatchMandelCalculator.h"
 
-#if defined(__AVX512F__) && defined(__AVX512DQ__)
+#if 0 //defined(__AVX512F__) && defined(__AVX512DQ__)
 #	pragma message("Using AVX512F & AVX512DQ")
 #	define MM_ALIGNMENT 64
 #	define MM_SIZE_32BIT 16
