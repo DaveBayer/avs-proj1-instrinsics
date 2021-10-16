@@ -20,12 +20,12 @@
 #include "LineMandelCalculator.h"
 
 #if defined(__AVX512F__) && defined(__AVX512DQ__)
-#	warning Using AVX512F & AVX512DQ
+#	pragma message("Using AVX512F & AVX512DQ")
 #	define MM_ALIGNMENT 64
 #	define MM_SIZE_32BIT 16
 #	define MM_SIZE_64BIT 8
 #elif defined(__AVX__) && defined(__AVX2__)
-#	warning Using AVX & AVX2
+#	pragma message("Using AVX & AVX2")
 #	define MM_ALIGNMENT 32
 #	define MM_SIZE_32BIT 8
 #	define MM_SIZE_64BIT 4
@@ -167,10 +167,10 @@ int *LineMandelCalculator::calculateMandelbrot () {
 #else
 
 static inline __attribute__((always_inline))
-__m256i mandelbrot(__m256 real, __m256 imag, int limit, int8_t mask)
+__m256i mandelbrot(__m256 real, __m256 imag, int limit, __m256i mask)
 {
 	__m256i result = _mm256_setzero_si256();
-	int8_t result_mask = mask;
+	__m256i result_mask = mask;
 
 	const __m256 two = _mm256_set1_ps(2.f);
 	const __m256 four = _mm256_set1_ps(4.f);
@@ -186,12 +186,12 @@ __m256i mandelbrot(__m256 real, __m256 imag, int limit, int8_t mask)
 		const __m256 i2 = _mm256_mul_ps(zImag, zImag);
 
 	//	if (r2 + i2 > 4.0f) then write i to result and update result_mask
-		int8_t test_mask = _mm256_movemask_ps(_mm256_cmp_ps(_mm256_add_ps(r2, i2), four, _CMP_GT_OS));
+		__m256i test_mask = _mm256_castps_si256(_mm256_cmp_ps(_mm256_add_ps(r2, i2), four, _CMP_GT_OS));
 
-		result = _mm256_blend_epi32(result, _mm256_set1_epi32(i), test_mask & result_mask);
-		result_mask &= ~test_mask;
+		result = _mm256_blendv_epi8(result, _mm256_set1_epi32(i), _mm256_and_si256(test_mask, result_mask));
+		result_mask = _mm256_andnot_si256(test_mask, result_mask);
 
-		if (result_mask == 0x00);
+		if (_mm256_testz_si256(result_mask, _mm256_setzero_si256()));
 			return result;
 		
 	//	zImag = 2.0f * zReal * zImag + imag;
@@ -201,7 +201,7 @@ __m256i mandelbrot(__m256 real, __m256 imag, int limit, int8_t mask)
 		zReal = _mm256_add_ps(_mm256_sub_ps(r2, i2), real);
 	}
 
-	return _mm256_blend_epi32(result, _mm256_set1_epi32(limit), result_mask);;
+	return _mm256_blendv_epi8(result, _mm256_set1_epi32(limit), result_mask);;
 }
 
 static inline __attribute__((always_inline))
@@ -242,24 +242,22 @@ int *LineMandelCalculator::calculateMandelbrot () {
 			__m256 x = _mm256_setr_m128(_mm256_cvtpd_ps(x1_pd), _mm256_cvtpd_ps(x2_pd));
 
 		//	get mask for avx instructions and data pointer increment
-			int8_t mask = 0xff;
-			__m256i mask_vect;
+			__m256i mask;
 			int inc = MM_SIZE_32BIT;
 
 			int diff = width - j;
 			
 			if (diff < MM_SIZE_32BIT) {
-				mask >>= MM_SIZE_32BIT - diff;
 				inc = diff;
-				mask_vect = mm256_set_mask_from_count(inc);
+				mask = mm256_set_mask_from_count(inc);
 
 			} else
-				mask_vect = _mm256_set1_epi32(0xffff);
+				mask = _mm256_set1_epi32(0xffff);
 
 			__m256i values = mandelbrot(x, y, limit, mask);
 
 		//	store values in memory pointed by pdata using mask
-			_mm256_maskstore_epi32(pdata, mask_vect, values);
+			_mm256_maskstore_epi32(pdata, mask, values);
 
 			pdata += inc;
 		}
