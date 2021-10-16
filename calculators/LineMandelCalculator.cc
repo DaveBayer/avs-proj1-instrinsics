@@ -19,6 +19,8 @@
 */
 #include "LineMandelCalculator.h"
 
+#undef __AVX512F__
+
 #if defined(__AVX512F__) && defined(__AVX512DQ__)
 #	pragma message("Using AVX512F & AVX512DQ")
 #	define MM_ALIGNMENT 64
