@@ -14,15 +14,14 @@ class BatchMandelCalculator : public BaseMandelCalculator
 public:
     BatchMandelCalculator(unsigned matrixBaseSize, unsigned limit);
     ~BatchMandelCalculator();
-    int * calculateMandelbrot();
+    int *calculateMandelbrot();
     void print_data();
 
 private:
     // @TODO add all internal parameters
     int *data;
 
-    void batch8x8(int, int);
-    void batch16x16(int, int);
+    void calculateBatch(int, int);
 };
 
 #endif

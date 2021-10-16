@@ -19,7 +19,7 @@
 */
 #include "LineMandelCalculator.h"
 
-#if 0 //defined(__AVX512F__) && defined(__AVX512DQ__)
+#if defined(__AVX512F__) && defined(__AVX512DQ__)
 #	pragma message("Using AVX512F & AVX512DQ")
 #	define MM_ALIGNMENT 64
 #	define MM_SIZE_32BIT 16
@@ -36,8 +36,6 @@
 LineMandelCalculator::LineMandelCalculator (unsigned matrixBaseSize, unsigned limit) :
 	BaseMandelCalculator(matrixBaseSize, limit, "LineMandelCalculator")
 {
-	// @TODO allocate & prefill memory
-
 	data = (int *) _mm_malloc(height * width * sizeof(int), MM_ALIGNMENT);
 	
 	if (data == nullptr)
@@ -46,8 +44,6 @@ LineMandelCalculator::LineMandelCalculator (unsigned matrixBaseSize, unsigned li
 
 LineMandelCalculator::~LineMandelCalculator()
 {
-	// @TODO cleanup the memory
-
 	_mm_free(data);
 	data = nullptr;
 }
@@ -106,7 +102,7 @@ __m512i mandelbrot(__m512 real, __m512 imag, int limit, __mmask16 mask)
 }
 
 static inline __attribute__((always_inline))
-__m512 _mm512_concat_ps256(__m256 a, __m256 b)
+__m512 mm512_concat_ps256(__m256 a, __m256 b)
 {
 	__m512 x;
 
@@ -139,7 +135,7 @@ int *LineMandelCalculator::calculateMandelbrot () {
 		//	x = x_start + j * dx
 			__m512d x1_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j1_pd, dx_pd));
 			__m512d x2_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j2_pd, dx_pd));
-			__m512 x = _mm512_concat_ps256(_mm512_cvtpd_ps(x1_pd), _mm512_cvtpd_ps(x2_pd));
+			__m512 x = mm512_concat_ps256(_mm512_cvtpd_ps(x1_pd), _mm512_cvtpd_ps(x2_pd));
 
 		//	get mask for avx instructions and data pointer increment
 			__mmask16 mask = 0xffffU;
