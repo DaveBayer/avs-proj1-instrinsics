@@ -20,10 +20,12 @@
 #include "LineMandelCalculator.h"
 
 #if defined(__AVX512F__) && defined(__AVX512DQ__)
+#	warning Using AVX512F & AVX512DQ
 #	define MM_ALIGNMENT 64
 #	define MM_SIZE_32BIT 16
 #	define MM_SIZE_64BIT 8
-#elif 1	//	defined(__AVX__) && defined(__AVX2__)
+#elif defined(__AVX__) && defined(__AVX2__)
+#	warning Using AVX & AVX2
 #	define MM_ALIGNMENT 32
 #	define MM_SIZE_32BIT 8
 #	define MM_SIZE_64BIT 4
