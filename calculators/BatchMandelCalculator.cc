@@ -58,50 +58,6 @@ void BatchMandelCalculator::print_data()
 	}
 }
 
-static inline __attribute__((always_inline))
-__m512i mandelbrot_512(__m512 real, __m512 imag, int limit, __mmask16 mask)
-{
-	__m512i result = _mm512_setzero_epi32();
-	__mmask16 result_mask = mask;
-
-	const __m512 two = _mm512_set1_ps(2.f);
-	const __m512 four = _mm512_set1_ps(4.f);
-
-	__m512 zReal = real;
-	__m512 zImag = imag;
-
-	for (int i = 0; i < limit; i++) {
-	//	r2 = zReal * zReal
-		const __m512 r2 = _mm512_mul_ps(zReal, zReal);
-
-	//	i2 = zImag * zImag
-		const __m512 i2 = _mm512_mul_ps(zImag, zImag);
-
-	//	if (r2 + i2 > 4.0f) then write i to result and update result_mask
-		__mmask16 test_mask = _mm512_cmp_ps_mask(_mm512_add_ps(r2, i2), four, _CMP_GT_OS);
-
-		result = _mm512_mask_mov_epi32(result, test_mask & result_mask, _mm512_set1_epi32(i));
-		result_mask &= ~test_mask;
-
-		if (result_mask == 0x0000U)
-			return result;
-		
-	//	zImag = 2.0f * zReal * zImag + imag;
-		zImag = _mm512_fmadd_ps(two, _mm512_mul_ps(zReal, zImag), imag);
-
-	//	zReal = r2 - i2 + real;
-		zReal = _mm512_add_ps(_mm512_sub_ps(r2, i2), real);
-	}
-
-	result = _mm512_mask_mov_epi32(result, result_mask, _mm512_set1_epi32(limit));
-
-	return result;
-}
-
-#define BATCH_SIZE_8 8
-
-
-
 #if defined(__AVX512F__) && defined(__AVX512DQ__)
 
 static inline __attribute__((always_inline))
