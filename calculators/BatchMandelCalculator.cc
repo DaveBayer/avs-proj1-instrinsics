@@ -12,7 +12,7 @@
 
 #include <stdlib.h>
 #include <immintrin.h>
-#include <stdexcept>
+#include <exception>
 
 #include "BatchMandelCalculator.h"
 
@@ -25,10 +25,9 @@ BatchMandelCalculator::BatchMandelCalculator (unsigned matrixBaseSize, unsigned 
 	// @TODO allocate & prefill memory
 
 	data = (int *) _mm_malloc(height * width * sizeof(int), 4);
-	if (data == nullptr) {
-		std::cerr << "Bad alloc" << std::endl;
-		exit(1);
-	}
+
+	if (data == nullptr)
+		throw std::bad_alloc();
 }
 
 BatchMandelCalculator::~BatchMandelCalculator() {
