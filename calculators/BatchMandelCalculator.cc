@@ -16,7 +16,7 @@
 
 #include "BatchMandelCalculator.h"
 
-#undef __AVX512F__
+//	#undef __AVX512F__
 
 #if defined(__AVX512F__) && defined(__AVX512DQ__)
 #	pragma message("Using AVX512F & AVX512DQ")
@@ -201,7 +201,7 @@ __m256i mm256_set_mask_from_count(int count)
 	alignas(MM_ALIGNMENT) int mem[MM_SIZE_32BIT];
 
 	for (int i = 0; i < MM_SIZE_32BIT; i++) {
-		mem[i] = i < count ? 0xffff : 0x0000;
+		mem[i] = i < count ? -1 : 0;
 	}
 
 	return _mm256_load_si256((__m256i *) mem);
@@ -219,7 +219,7 @@ void BatchMandelCalculator::calculateBatch(int i_from, int j_from)
 	if (diff < MM_SIZE_32BIT)
 		mask = mm256_set_mask_from_count(diff);
 	else
-		mask = _mm256_set1_epi32(0xffff);
+		mask = _mm256_set1_epi32(-1);
 
 	int *pdata = data + i_from * width + j_from;
 
