@@ -248,7 +248,7 @@ void BatchMandelCalculator::calculateBatch(int i_from, int j_from)
 			__m256i values = mandelbrot_mm256(x, y, limit);
 
 		//	store values in memory pointed by pdata using mask
-			_mm256_storeu_si256((__m256i_u *) pdata, values);
+			_mm256_storeu_si256((__m256i *) pdata, values);
 
 			pdata += width;
 		}
