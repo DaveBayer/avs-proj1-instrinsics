@@ -158,10 +158,31 @@ void BatchMandelCalculator::calculateBatch(int i_from, int j_from)
 #else
 
 static inline __attribute__((always_inline))
-__m256i mandelbrot(__m256 real, __m256 imag, int limit, __m256i mask)
+int mandelbrot(float real, float imag, int limit)
+{
+	float zReal = real;
+	float zImag = imag;
+
+	for (int i = 0; i < limit; ++i)
+	{
+		float r2 = zReal * zReal;
+		float i2 = zImag * zImag;
+
+		if (r2 + i2 > 4.0f)
+			return i;
+
+		zImag = 2.0f * zReal * zImag + imag;
+		zReal = r2 - i2 + real;
+	}
+
+	return limit;
+}
+
+static inline __attribute__((always_inline))
+__m256i mandelbrot_mm256(__m256 real, __m256 imag, int limit)
 {
 	__m256i result = _mm256_setzero_si256();
-	__m256i result_mask = mask;
+	__m256i result_mask = _mm256_set1_epi32(-1);
 
 	const __m256 two = _mm256_set1_ps(2.f);
 	const __m256 four = _mm256_set1_ps(4.f);
@@ -195,18 +216,6 @@ __m256i mandelbrot(__m256 real, __m256 imag, int limit, __m256i mask)
 	return _mm256_blendv_epi8(result, _mm256_set1_epi32(limit), result_mask);;
 }
 
-static inline __attribute__((always_inline))
-__m256i mm256_set_mask_from_count(int count)
-{
-	alignas(MM_ALIGNMENT) int mem[MM_SIZE_32BIT];
-
-	for (int i = 0; i < MM_SIZE_32BIT; i++) {
-		mem[i] = i < count ? -1 : 0;
-	}
-
-	return _mm256_load_si256((__m256i *) mem);
-}
-
 void BatchMandelCalculator::calculateBatch(int i_from, int j_from)
 {
 	int i_limit = i_from + MM_SIZE_32BIT;
@@ -214,40 +223,46 @@ void BatchMandelCalculator::calculateBatch(int i_from, int j_from)
 	if (i_limit >= height)
 		i_limit = height;
 
-	__m256i mask;
-	int diff = width - j_from;
-	if (diff < MM_SIZE_32BIT)
-		mask = mm256_set_mask_from_count(diff);
-	else
-		mask = _mm256_set1_epi32(-1);
-
 	int *pdata = data + i_from * width + j_from;
 
-	__m256d dx_pd, x_start_pd, inc_pd;
+	if (j_from + MM_SIZE_32BIT < width) {
+		__m256d dx_pd, x_start_pd, inc_pd;
 
-	dx_pd = _mm256_set1_pd(dx);
-	x_start_pd = _mm256_set1_pd(x_start);
+		dx_pd = _mm256_set1_pd(dx);
+		x_start_pd = _mm256_set1_pd(x_start);
 
-	inc_pd = _mm256_set_pd(3., 2., 1., 0.);
+		inc_pd = _mm256_set_pd(3., 2., 1., 0.);
 
-	for (int i = i_from; i < i_limit; i++) {
-		const __m256 y = _mm256_set1_ps(y_start + i * dy);
+		for (int i = i_from; i < i_limit; i++) {
+			const __m256 y = _mm256_set1_ps(y_start + i * dy);
 
-	//	prepare j
-		__m256d j1_pd = _mm256_add_pd(_mm256_set1_pd(static_cast<double>(j_from)), inc_pd);
-		__m256d j2_pd = _mm256_add_pd(_mm256_set1_pd(static_cast<double>(j_from + MM_SIZE_64BIT)), inc_pd);
+		//	prepare j
+			__m256d j1_pd = _mm256_add_pd(_mm256_set1_pd(static_cast<double>(j_from)), inc_pd);
+			__m256d j2_pd = _mm256_add_pd(_mm256_set1_pd(static_cast<double>(j_from + MM_SIZE_64BIT)), inc_pd);
 
-	//	x = x_start + j * dx
-		__m256d x1_pd = _mm256_add_pd(x_start_pd, _mm256_mul_pd(j1_pd, dx_pd));
-		__m256d x2_pd = _mm256_add_pd(x_start_pd, _mm256_mul_pd(j2_pd, dx_pd));
-		__m256 x = _mm256_setr_m128(_mm256_cvtpd_ps(x1_pd), _mm256_cvtpd_ps(x2_pd));
+		//	x = x_start + j * dx
+			__m256d x1_pd = _mm256_add_pd(x_start_pd, _mm256_mul_pd(j1_pd, dx_pd));
+			__m256d x2_pd = _mm256_add_pd(x_start_pd, _mm256_mul_pd(j2_pd, dx_pd));
+			__m256 x = _mm256_setr_m128(_mm256_cvtpd_ps(x1_pd), _mm256_cvtpd_ps(x2_pd));
 
-		__m256i values = mandelbrot(x, y, limit, mask);
+			__m256i values = mandelbrot_mm256(x, y, limit);
 
-	//	store values in memory pointed by pdata using mask
-		_mm256_maskstore_epi32(pdata, mask, values);
+		//	store values in memory pointed by pdata using mask
+			_mm256_storeu_si256((__m256i_u *) pdata, values);
 
-		pdata += width;
+			pdata += width;
+		}
+	} else {
+		for (int i = i_from; i < i_limit; i++) {
+			for (int j = j_from; j < width; j++) {
+				float x = x_start + j * dx;
+				float y = y_start + i * dy;
+
+				int value = mandelbrot(x, y, limit);
+
+				*(pdata++) = value;
+			}
+		}
 	}
 }
 
