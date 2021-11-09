@@ -1,6 +1,6 @@
 /**
  * @file BatchMandelCalculator.h
- * @author FULL NAME <xlogin00@stud.fit.vutbr.cz>
+ * @author David Bayer <xlogin00@stud.fit.vutbr.cz>
  * @brief Implementation of Mandelbrot calculator that uses SIMD paralelization over small batches
  * @date DATE
  */
