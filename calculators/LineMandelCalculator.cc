@@ -24,13 +24,13 @@
 #if defined(__AVX512F__) && defined(__AVX512DQ__)
 #	pragma message("Using AVX512F & AVX512DQ")
 #	define MM_ALIGNMENT 64
-#	define MM_SIZE_32BIT 16
-#	define MM_SIZE_64BIT 8
+#	define MM_PSIZE_32BIT 16
+#	define MM_PSIZE_64BIT 8
 #elif defined(__AVX__) && defined(__AVX2__)
 #	pragma message("Using AVX & AVX2")
 #	define MM_ALIGNMENT 32
-#	define MM_SIZE_32BIT 8
-#	define MM_SIZE_64BIT 4
+#	define MM_PSIZE_32BIT 8
+#	define MM_PSIZE_64BIT 4
 #else
 #	error Unsupported architecture, minimum requirements: AVX, AVX2
 #endif
@@ -129,10 +129,10 @@ int *LineMandelCalculator::calculateMandelbrot () {
 	//	y = y_start + i * dy
 		const __m512 y = _mm512_set1_ps(y_start + i * dy);
 
-		for (int j = 0; j < width; j += MM_SIZE_32BIT) {
+		for (int j = 0; j < width; j += MM_PSIZE_32BIT) {
 		//	prepare j
 			__m512d j1_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j)), inc_pd);
-			__m512d j2_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j + MM_SIZE_64BIT)), inc_pd);
+			__m512d j2_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j + MM_PSIZE_64BIT)), inc_pd);
 
 		//	x = x_start + j * dx
 			__m512d x1_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j1_pd, dx_pd));
@@ -141,12 +141,12 @@ int *LineMandelCalculator::calculateMandelbrot () {
 
 		//	get mask for avx instructions and data pointer increment
 			__mmask16 mask = 0xffffU;
-			int inc = MM_SIZE_32BIT;
+			int inc = MM_PSIZE_32BIT;
 
 			int diff = width - j;
 			
-			if (diff < MM_SIZE_32BIT) {
-				mask >>= MM_SIZE_32BIT - diff;
+			if (diff < MM_PSIZE_32BIT) {
+				mask >>= MM_PSIZE_32BIT - diff;
 				inc = diff;
 			}
 
@@ -240,10 +240,10 @@ int *LineMandelCalculator::calculateMandelbrot()
 
 		int j;
 
-		for (j = 0; j + MM_SIZE_32BIT < width; j += MM_SIZE_32BIT) {
+		for (j = 0; j + MM_PSIZE_32BIT < width; j += MM_PSIZE_32BIT) {
 		//	prepare j
 			__m256d j1_pd = _mm256_add_pd(_mm256_set1_pd(static_cast<double>(j)), inc_pd);
-			__m256d j2_pd = _mm256_add_pd(_mm256_set1_pd(static_cast<double>(j + MM_SIZE_64BIT)), inc_pd);
+			__m256d j2_pd = _mm256_add_pd(_mm256_set1_pd(static_cast<double>(j + MM_PSIZE_64BIT)), inc_pd);
 
 		//	x = x_start + j * dx
 			__m256d x1_pd = _mm256_add_pd(x_start_pd, _mm256_mul_pd(j1_pd, dx_pd));
@@ -255,7 +255,7 @@ int *LineMandelCalculator::calculateMandelbrot()
 		//	store values in memory pointed by pdata using mask
 			_mm256_storeu_si256((__m256i *) pdata, values);
 
-			pdata += MM_SIZE_32BIT;
+			pdata += MM_PSIZE_32BIT;
 		}
 
 		for (; j < width; j++) {

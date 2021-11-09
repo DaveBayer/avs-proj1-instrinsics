@@ -21,13 +21,13 @@
 #if defined(__AVX512F__) && defined(__AVX512DQ__)
 #	pragma message("Using AVX512F & AVX512DQ")
 #	define MM_ALIGNMENT 64
-#	define MM_SIZE_32BIT 16
-#	define MM_SIZE_64BIT 8
+#	define MM_PSIZE_32BIT 16
+#	define MM_PSIZE_64BIT 8
 #elif defined(__AVX__) && defined(__AVX2__)
 #	pragma message("Using AVX & AVX2")
 #	define MM_ALIGNMENT 32
-#	define MM_SIZE_32BIT 8
-#	define MM_SIZE_64BIT 4
+#	define MM_PSIZE_32BIT 8
+#	define MM_PSIZE_64BIT 4
 #else
 #	error Unsupported architecture, minimum requirements: AVX, AVX2
 #endif
@@ -115,15 +115,15 @@ __m512 mm512_concat_ps256(__m256 a, __m256 b)
 
 void BatchMandelCalculator::calculateBatch(int i_from, int j_from)
 {
-	int i_limit = i_from + MM_SIZE_32BIT;
+	int i_limit = i_from + MM_PSIZE_32BIT;
 
 	if (i_limit >= height)
 		i_limit = height;
 
 	__mmask16 mask = 0xffffU;
 	int diff = width - j_from;
-	if (diff < MM_SIZE_32BIT)
-		mask >>= MM_SIZE_32BIT - diff;
+	if (diff < MM_PSIZE_32BIT)
+		mask >>= MM_PSIZE_32BIT - diff;
 
 	int *pdata = data + i_from * width + j_from;
 
@@ -139,7 +139,7 @@ void BatchMandelCalculator::calculateBatch(int i_from, int j_from)
 
 	//	prepare j
 		__m512d j1_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j_from)), inc_pd);
-		__m512d j2_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j_from + MM_SIZE_64BIT)), inc_pd);
+		__m512d j2_pd = _mm512_add_pd(_mm512_set1_pd(static_cast<double>(j_from + MM_PSIZE_64BIT)), inc_pd);
 
 	//	x = x_start + j * dx
 		__m512d x1_pd = _mm512_add_pd(x_start_pd, _mm512_mul_pd(j1_pd, dx_pd));
@@ -218,14 +218,14 @@ __m256i mandelbrot_mm256(__m256 real, __m256 imag, int limit)
 
 void BatchMandelCalculator::calculateBatch(int i_from, int j_from)
 {
-	int i_limit = i_from + MM_SIZE_32BIT;
+	int i_limit = i_from + MM_PSIZE_32BIT;
 
 	if (i_limit >= height)
 		i_limit = height;
 
 	int *pdata = data + i_from * width + j_from;
 
-	if (j_from + MM_SIZE_32BIT < width) {
+	if (j_from + MM_PSIZE_32BIT < width) {
 		__m256d dx_pd, x_start_pd, inc_pd;
 
 		dx_pd = _mm256_set1_pd(dx);
@@ -238,7 +238,7 @@ void BatchMandelCalculator::calculateBatch(int i_from, int j_from)
 
 		//	prepare j
 			__m256d j1_pd = _mm256_add_pd(_mm256_set1_pd(static_cast<double>(j_from)), inc_pd);
-			__m256d j2_pd = _mm256_add_pd(_mm256_set1_pd(static_cast<double>(j_from + MM_SIZE_64BIT)), inc_pd);
+			__m256d j2_pd = _mm256_add_pd(_mm256_set1_pd(static_cast<double>(j_from + MM_PSIZE_64BIT)), inc_pd);
 
 		//	x = x_start + j * dx
 			__m256d x1_pd = _mm256_add_pd(x_start_pd, _mm256_mul_pd(j1_pd, dx_pd));
@@ -271,8 +271,8 @@ void BatchMandelCalculator::calculateBatch(int i_from, int j_from)
 int * BatchMandelCalculator::calculateMandelbrot () {
 	// @TODO implement the calculator & return array of integers
 
-	for (int i = 0; i < height; i += MM_SIZE_32BIT) {
-		for (int j = 0; j < width; j += MM_SIZE_32BIT) {
+	for (int i = 0; i < height; i += MM_PSIZE_32BIT) {
+		for (int j = 0; j < width; j += MM_PSIZE_32BIT) {
 			calculateBatch(i, j);
 		}
 	}
